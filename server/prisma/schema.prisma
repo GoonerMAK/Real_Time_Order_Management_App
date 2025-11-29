@@ -12,3 +12,67 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+model User {
+  id          String  @id @default(uuid())
+  username    String  @unique
+  password    String
+  email       String  @unique
+  name        String?
+  age         Int?
+  gender      String?
+  nationality String?
+
+  orders Order[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Order {
+  id           String @id @default(uuid())
+  total_amount Float
+
+  items Item[]
+
+  payment_type   PaymentType
+  payment_status PaymentStatus
+  order_status   OrderStatus
+
+  created_by    User   @relation(fields: [created_by_id], references: [id])
+  created_by_id String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Item {
+  id       String @id @default(uuid())
+  title    String
+  price    Float
+  quantity Int
+
+  order    Order  @relation(fields: [order_id], references: [id])
+  order_id String
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+enum PaymentType {
+  STRIPE
+  PAYPAL
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+}
